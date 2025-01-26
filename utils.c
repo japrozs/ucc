@@ -11,6 +11,7 @@ void die(char* fmt, ...)
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     va_end(ap);
+    printf("Exited with exit code : 1\n");
     exit(EXIT_FAILURE);
 }
 
@@ -24,6 +25,7 @@ void die_on_line(char* fmt, ...)
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     va_end(ap);
+    printf("Exited with exit code : 1\n");
     exit(EXIT_FAILURE);
 }
 

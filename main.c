@@ -9,17 +9,18 @@ static void init_ucc(void)
 }
 
 char* token_strings[] = { "+", "-", "*", "/", "(integer literal)" };
-static void scan_file(void)
-{
-    struct token_t T;
-    while (scan(&T)) {
-        printf("Token %s", token_strings[T.token]);
-        if (T.token == T_INTLIT) {
-            printf(", value %d", T.int_value);
-        }
-        printf("\n");
-    }
-}
+
+// static void scan_file(void)
+// {
+//     struct token_t T;
+//     while (scan(&T)) {
+//         printf("Token %s", token_strings[T.token]);
+//         if (T.token == T_INTLIT) {
+//             printf(", value %d", T.int_value);
+//         }
+//         printf("\n");
+//     }
+// }
 
 int main(int argc, char** argv)
 {
@@ -33,6 +34,8 @@ int main(int argc, char** argv)
         die("Unable to open %s: %s", argv[1], strerror(errno));
     }
 
-    scan_file();
+    scan(&recent_token); // Get the first token from the input
+    struct ASTnode_t* n = binexpr(0); // Parse the expression in the file
+    printf("%d\n", interpret_ast(n)); // Calculate the final result
     return 0;
 }

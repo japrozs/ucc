@@ -21,7 +21,7 @@ struct ASTnode_t* mkastleaf(int op, int int_value)
     return mkastnode(op, NULL, NULL, int_value);
 }
 
-struct ASTnode_t* mkastunary(int op, struct ASTnode_t* left, int intvalue)
+struct ASTnode_t* mkastunary(int op, struct ASTnode_t* left, int int_value)
 {
-    return mkastnode(op, left, NULL, intvalue);
+    return mkastnode(op, left, NULL, int_value);
 }
