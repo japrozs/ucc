@@ -8,7 +8,7 @@ struct ASTnode_t* mkastnode(int op, struct ASTnode_t* left,
     if (n == NULL) {
         err("Unable to malloc in mkastnode()");
     }
-    // Copy in the field values and return it
+
     n->op = op;
     n->left = left;
     n->right = right;

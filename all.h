@@ -21,6 +21,7 @@ struct token_t {
 extern_ int line;
 extern_ int putback_c;
 extern_ FILE* input_file;
+extern_ FILE* output_file;
 extern_ struct token_t recent_token;
 
 enum {
@@ -61,6 +62,20 @@ struct ASTnode_t* mkastunary(int op, struct ASTnode_t* left, int intvalue);
 
 // interp.c
 int interpret_ast(struct ASTnode_t* n);
+
+// gen.c
+void generate_code(struct ASTnode_t* n);
+
+// cg.c
+void freeall_registers(void);
+void cgpreamble(void);
+void cgpostamble(void);
+int cgload(int value);
+int cgadd(int r1, int r2);
+int cgsub(int r1, int r2);
+int cgmul(int r1, int r2);
+int cgdiv(int r1, int r2);
+void cgprintint(int r);
 
 // utils.c
 #define RED_BOLD "\033[1;31m"

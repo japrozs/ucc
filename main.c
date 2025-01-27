@@ -34,8 +34,16 @@ int main(int argc, char** argv)
         die("Unable to open %s: %s", argv[1], strerror(errno));
     }
 
+    output_file = fopen("out.s", "w");
+    if (output_file == NULL) {
+        die("Unable to create out.s: %s\n", strerror(errno));
+    }
+
     scan(&recent_token); // Get the first token from the input
     struct ASTnode_t* n = binexpr(0); // Parse the expression in the file
     printf("%d\n", interpret_ast(n)); // Calculate the final result
+    generate_code(n);
+
+    fclose(output_file);
     return 0;
 }
