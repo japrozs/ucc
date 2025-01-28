@@ -4,6 +4,7 @@
 // and their names
 static int freereg[4];
 static char* reg_list[4] = { "%r8", "%r9", "%r10", "%r11" };
+static char* b_reg_list[4] = { "%r8b", "%r9b", "%r10b", "%r11b" };
 
 // Set all registers as available
 void freeall_registers(void)
@@ -159,3 +160,19 @@ void cgglobsym(char* sym)
 {
     fprintf(output_file, "\t.comm\t%s,8,8\n", sym);
 }
+
+int cgcompare(int r1, int r2, char* how)
+{
+    fprintf(output_file, "\tcmpq\t%s, %s\n", reg_list[r2], reg_list[r1]);
+    fprintf(output_file, "\t%s\t%s\n", how, b_reg_list[r2]);
+    fprintf(output_file, "\tandq\t$255,%s\n", reg_list[r2]);
+    free_register(r1);
+    return (r2);
+}
+
+int cgequal(int r1, int r2) { return (cgcompare(r1, r2, "sete")); }
+int cgnotequal(int r1, int r2) { return (cgcompare(r1, r2, "setne")); }
+int cglessthan(int r1, int r2) { return (cgcompare(r1, r2, "setl")); }
+int cggreaterthan(int r1, int r2) { return (cgcompare(r1, r2, "setg")); }
+int cglessequal(int r1, int r2) { return (cgcompare(r1, r2, "setle")); }
+int cggreaterequal(int r1, int r2) { return (cgcompare(r1, r2, "setge")); }

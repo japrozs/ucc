@@ -40,20 +40,33 @@ enum {
     T_MINUS,
     T_STAR,
     T_SLASH,
+    T_EQ,
+    T_NE,
+    T_LT,
+    T_GT,
+    T_LE,
+    T_GE,
     T_INTLIT,
     T_SEMI,
+    T_ASSIGN,
+    T_IDENT,
+    // Keywords
     T_PRINT,
-    T_EQUALS,
-    T_INT,
-    T_IDENT
+    T_INT
 };
 
 // ast node types
 enum {
-    A_ADD,
+    A_ADD = 1,
     A_SUBTRACT,
     A_MULTIPLY,
     A_DIVIDE,
+    A_EQ,
+    A_NE,
+    A_LT,
+    A_GT,
+    A_LE,
+    A_GE,
     A_INTLIT,
     A_IDENT,
     A_LVIDENT,
@@ -109,6 +122,13 @@ int cgloadint(int value);
 int cgloadglob(char* identifier);
 int cgstorglob(int r, char* identifier);
 void cgglobsym(char* sym);
+int cgcompare(int r1, int r2, char* how);
+int cgequal(int r1, int r2);
+int cgnotequal(int r1, int r2);
+int cglessthan(int r1, int r2);
+int cggreaterthan(int r1, int r2);
+int cglessequal(int r1, int r2);
+int cggreaterequal(int r1, int r2);
 
 // stmt.c
 void statements(void);

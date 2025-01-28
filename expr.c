@@ -1,27 +1,22 @@
 #include "all.h"
 
-static int operator_precedence[] = { 0, 10, 10, 20, 20, 0 };
-//                     EOF  +   -   *   /  INTLIT
+static int operator_precedence[] = {
+    0, 10, 10, // T_EOF, T_PLUS, T_MINUS
+    20, 20, // T_STAR, T_SLASH
+    30, 30, // T_EQ, T_NE
+    40, 40, 40, 40 // T_LT, T_GT, T_LE, T_GE
+};
 
-int arithop(int tok)
+int arithop(int tokentype)
 {
-    switch (tok) {
-    case T_PLUS:
-        return (A_ADD);
-    case T_MINUS:
-        return (A_SUBTRACT);
-    case T_STAR:
-        return (A_MULTIPLY);
-    case T_SLASH:
-        return (A_DIVIDE);
-    default:
-        die_on_line("Unknown token in arithop()");
-    }
+    if (tokentype > T_EOF && tokentype < T_INTLIT)
+        return (tokentype);
+    die_on_line("Syntax error, token '%d'", tokentype);
 }
 
 static struct ASTnode_t* primary(void)
 {
-    struct ASTnode_t* n;
+    struct ASTnode_t* n = NULL;
     int id;
 
     // For an INTLIT token, make a leaf AST node for it

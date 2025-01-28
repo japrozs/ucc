@@ -119,7 +119,35 @@ int scan(struct token_t* t)
         t->token = T_SEMI;
         break;
     case '=':
-        t->token = T_EQUALS;
+        if ((c = next()) == '=') {
+            t->token = T_EQ;
+        } else {
+            putback(c);
+            t->token = T_ASSIGN;
+        }
+        break;
+    case '!':
+        if ((c = next()) == '=') {
+            t->token = T_NE;
+        } else {
+            die_on_line("Unrecognised character '%c'", c);
+        }
+        break;
+    case '<':
+        if ((c = next()) == '=') {
+            t->token = T_LE;
+        } else {
+            putback(c);
+            t->token = T_LT;
+        }
+        break;
+    case '>':
+        if ((c = next()) == '=') {
+            t->token = T_GE;
+        } else {
+            putback(c);
+            t->token = T_GT;
+        }
         break;
     default:
         // If it's a digit, scan the
@@ -133,7 +161,7 @@ int scan(struct token_t* t)
             scanident(c, text, TEXTLEN);
 
             // If it's a recognised keyword, return that token
-            if (tokentype = keyword(text)) {
+            if ((tokentype = keyword(text))) {
                 t->token = tokentype;
                 break;
             }
