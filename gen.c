@@ -1,6 +1,6 @@
 #include "all.h"
 
-static int gen_ast(struct ASTnode_t* n)
+int gen_ast(struct ASTnode_t* n)
 {
     int leftreg, rightreg;
 
@@ -36,3 +36,8 @@ void generate_code(struct ASTnode_t* n)
     cgprintint(reg); // Print the register with the result as an int
     cgpostamble();
 }
+
+void genpreamble(void) { cgpreamble(); }
+void genpostamble(void) { cgpostamble(); }
+void genfreeregs(void) { freeall_registers(); }
+void genprintint(int reg) { cgprintint(reg); }

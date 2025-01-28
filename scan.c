@@ -55,9 +55,46 @@ static int scanint(int c)
     return val;
 }
 
+static int scanident(int c, char* buf, int lim)
+{
+    int i = 0;
+
+    // Allow digits, alpha and underscores
+    while (isalpha(c) || isdigit(c) || '_' == c) {
+        // Error if we hit the identifier length limit,
+        // else append to buf[] and get next character
+        if (lim - 1 == i) {
+            die_on_line("identifier too long");
+        } else if (i < lim - 1) {
+            buf[i++] = c;
+        }
+        c = next();
+    }
+    // We hit a non-valid character, put it back.
+    // NUL-terminate the buf[] and return the length
+    putback(c);
+    buf[i] = '\0';
+    return (i);
+}
+
+// find keywords in the code
+static int keyword(char* s)
+{
+    // match with the first char of the string (i.e. the pointer)
+    switch (*s) {
+    case 'p':
+        if (!strcmp(s, "print"))
+            return (T_PRINT);
+        break;
+    }
+    return (0);
+}
+
 int scan(struct token_t* t)
 {
     int c = skip();
+    int tokentype;
+
     switch (c) {
     case EOF:
         t->token = T_EOF;
@@ -74,6 +111,9 @@ int scan(struct token_t* t)
     case '/':
         t->token = T_SLASH;
         break;
+    case ';':
+        t->token = T_SEMI;
+        break;
     default:
         // If it's a digit, scan the
         // literal integer value in
@@ -81,6 +121,18 @@ int scan(struct token_t* t)
             t->int_value = scanint(c);
             t->token = T_INTLIT;
             break;
+        } else if (isalpha(c) || '_' == c) {
+            // Read in a keyword or identifier
+            scanident(c, text, TEXTLEN);
+
+            // If it's a recognised keyword, return that token
+            if (tokentype = keyword(text)) {
+                t->token = tokentype;
+                break;
+            }
+            // Not a recognised keyword, so an error for now
+            die_on_line("Unrecognised symbol %s", text);
+            exit(1);
         }
 
         die_on_line("Unrecognised character '%c'", c);

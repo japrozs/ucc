@@ -40,9 +40,9 @@ int main(int argc, char** argv)
     }
 
     scan(&recent_token); // Get the first token from the input
-    struct ASTnode_t* n = binexpr(0); // Parse the expression in the file
-    printf("%d\n", interpret_ast(n)); // Calculate the final result
-    generate_code(n);
+    genpreamble(); // Output the preamble
+    statements(); // Parse the statements in the input
+    genpostamble(); // Output the postamble
 
     fclose(output_file);
     return 0;

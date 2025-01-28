@@ -24,13 +24,18 @@ extern_ FILE* input_file;
 extern_ FILE* output_file;
 extern_ struct token_t recent_token;
 
+#define TEXTLEN 512 // Length of symbols in input
+extern_ char text[TEXTLEN + 1];
+
 enum {
     T_EOF,
     T_PLUS,
     T_MINUS,
     T_STAR,
     T_SLASH,
-    T_INTLIT
+    T_INTLIT,
+    T_SEMI,
+    T_PRINT
 };
 
 // ast node types
@@ -65,6 +70,12 @@ int interpret_ast(struct ASTnode_t* n);
 
 // gen.c
 void generate_code(struct ASTnode_t* n);
+int gen_ast(struct ASTnode_t* n);
+
+void genpreamble(void);
+void genpostamble(void);
+void genfreeregs(void);
+void genprintint(int reg);
 
 // cg.c
 void freeall_registers(void);
@@ -77,6 +88,9 @@ int cgmul(int r1, int r2);
 int cgdiv(int r1, int r2);
 void cgprintint(int r);
 
+// stmt.c
+void statements(void);
+
 // utils.c
 #define RED_BOLD "\033[1;31m"
 #define BLUE_BOLD "\033[1;34m"
@@ -86,5 +100,13 @@ void cgprintint(int r);
 void die(char* fmt, ...);
 void die_on_line(char* fmt, ...);
 void err(char* fmt, ...);
+
+// Ensure that the current token is t,
+// and fetch the next token. Otherwise
+// throw an error
+void match(int t, char* what);
+
+// Match a semicon and fetch the next token
+void semi(void);
 
 #endif
