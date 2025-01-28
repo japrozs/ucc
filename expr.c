@@ -22,6 +22,7 @@ int arithop(int tok)
 static struct ASTnode_t* primary(void)
 {
     struct ASTnode_t* n;
+    int id;
 
     // For an INTLIT token, make a leaf AST node for it
     // and scan in the next token. Otherwise, a syntax error
@@ -29,11 +30,21 @@ static struct ASTnode_t* primary(void)
     switch (recent_token.token) {
     case T_INTLIT:
         n = mkastleaf(A_INTLIT, recent_token.int_value);
-        scan(&recent_token);
-        return n;
+        break;
+    case T_IDENT:
+        // Check that this identifier exists
+        id = findglob(text);
+        if (id == -1)
+            die_on_line("Unknown variable '%s'", text);
+
+        // Make a leaf AST node for it
+        n = mkastleaf(A_IDENT, id);
+        break;
     default:
         die_on_line("Syntax error");
     }
+    scan(&recent_token);
+    return (n);
 }
 
 // Check that we have a binary operator and
@@ -42,7 +53,7 @@ static int op_precedence(int tokentype)
 {
     int prec = operator_precedence[tokentype];
     if (prec == 0) {
-        die_on_line("syntax error handling token %d", tokentype);
+        die_on_line("Syntax error handling token %d", tokentype);
     }
     return (prec);
 }

@@ -61,3 +61,5 @@ void semi(void)
 {
     match(T_SEMI, ";");
 }
+
+void ident(void) { match(T_IDENT, "identifier"); }

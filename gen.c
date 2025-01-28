@@ -1,14 +1,14 @@
 #include "all.h"
 
-int gen_ast(struct ASTnode_t* n)
+int gen_ast(struct ASTnode_t* n, int reg)
 {
     int leftreg, rightreg;
 
     // Get the left and right sub-tree values
     if (n->left)
-        leftreg = gen_ast(n->left);
+        leftreg = gen_ast(n->left, -1);
     if (n->right)
-        rightreg = gen_ast(n->right);
+        rightreg = gen_ast(n->right, leftreg);
 
     switch (n->op) {
     case A_ADD:
@@ -20,24 +20,22 @@ int gen_ast(struct ASTnode_t* n)
     case A_DIVIDE:
         return (cgdiv(leftreg, rightreg));
     case A_INTLIT:
-        return (cgload(n->int_value));
+        return (cgloadint(n->v.int_value));
+    case A_IDENT:
+        return (cgloadglob(global_symbols[n->v.id].name));
+    case A_LVIDENT:
+        return (cgstorglob(reg, global_symbols[n->v.id].name));
+    case A_ASSIGN:
+        // The work has already been done, return the result
+        return (rightreg);
 
     default:
         err("Unknown AST operator %d", n->op);
     }
 }
 
-void generate_code(struct ASTnode_t* n)
-{
-    int reg;
-
-    cgpreamble();
-    reg = gen_ast(n);
-    cgprintint(reg); // Print the register with the result as an int
-    cgpostamble();
-}
-
 void genpreamble(void) { cgpreamble(); }
 void genpostamble(void) { cgpostamble(); }
 void genfreeregs(void) { freeall_registers(); }
 void genprintint(int reg) { cgprintint(reg); }
+void genglobsym(char* s) { cgglobsym(s); }

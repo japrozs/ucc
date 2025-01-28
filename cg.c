@@ -81,7 +81,7 @@ void cgpostamble(void)
 
 // load an integer literal value into a register.
 // return the number of the register
-int cgload(int value)
+int cgloadint(int value)
 {
     // Get a new register
     int r = alloc_register();
@@ -135,4 +135,27 @@ void cgprintint(int r)
     fprintf(output_file, "\tmovq\t%s, %%rdi\n", reg_list[r]);
     fprintf(output_file, "\tcall\tprintint\n");
     free_register(r);
+}
+
+int cgloadglob(char* identifier)
+{
+    // Get a new register
+    int r = alloc_register();
+
+    // Print out the code to initialise it
+    fprintf(output_file, "\tmovq\t%s(%%rip), %s\n", identifier, reg_list[r]);
+    return (r);
+}
+
+// Store a register's value into a variable
+int cgstorglob(int r, char* identifier)
+{
+    fprintf(output_file, "\tmovq\t%s, %s(%%rip)\n", reg_list[r], identifier);
+    return (r);
+}
+
+// Generate a global symbol
+void cgglobsym(char* sym)
+{
+    fprintf(output_file, "\t.comm\t%s,8,8\n", sym);
 }

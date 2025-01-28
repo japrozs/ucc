@@ -86,6 +86,10 @@ static int keyword(char* s)
         if (!strcmp(s, "print"))
             return (T_PRINT);
         break;
+    case 'i':
+        if (!strcmp(s, "int"))
+            return (T_INT);
+        break;
     }
     return (0);
 }
@@ -114,6 +118,9 @@ int scan(struct token_t* t)
     case ';':
         t->token = T_SEMI;
         break;
+    case '=':
+        t->token = T_EQUALS;
+        break;
     default:
         // If it's a digit, scan the
         // literal integer value in
@@ -131,8 +138,8 @@ int scan(struct token_t* t)
                 break;
             }
             // Not a recognised keyword, so an error for now
-            die_on_line("Unrecognised symbol %s", text);
-            exit(1);
+            t->token = T_IDENT;
+            break;
         }
 
         die_on_line("Unrecognised character '%c'", c);
