@@ -3,8 +3,16 @@
 // List of available registers
 // and their names
 static int freereg[4];
+// general use registers
 static char* reg_list[4] = { "%r8", "%r9", "%r10", "%r11" };
+// boolean registers
 static char* b_reg_list[4] = { "%r8b", "%r9b", "%r10b", "%r11b" };
+// List of comparison instructions,
+// in AST order: A_EQ, A_NE, A_LT, A_GT, A_LE, A_GE
+static char* cmplist[] = { "sete", "setne", "setl", "setg", "setle", "setge" };
+// List of inverted jump instructions,
+// in AST order: A_EQ, A_NE, A_LT, A_GT, A_LE, A_GE
+static char* invcmplist[] = { "jne", "je", "jge", "jle", "jg", "jl" };
 
 // Set all registers as available
 void freeall_registers(void)
@@ -168,6 +176,46 @@ int cgcompare(int r1, int r2, char* how)
     fprintf(output_file, "\tandq\t$255,%s\n", reg_list[r2]);
     free_register(r1);
     return (r2);
+}
+
+int cgcompare_and_set(int ASTop, int r1, int r2)
+{
+
+    // Check the range of the AST operation
+    if (ASTop < A_EQ || ASTop > A_GE)
+        err("Bad ASTop in cgcompare_and_set()");
+
+    fprintf(output_file, "\tcmpq\t%s, %s\n", reg_list[r2], reg_list[r1]);
+    fprintf(output_file, "\t%s\t%s\n", cmplist[ASTop - A_EQ], b_reg_list[r2]);
+    fprintf(output_file, "\tmovzbq\t%s, %s\n", b_reg_list[r2], reg_list[r2]);
+    free_register(r1);
+    return (r2);
+}
+
+// Compare two registers and jump if false.
+int cgcompare_and_jump(int ASTop, int r1, int r2, int label)
+{
+
+    // Check the range of the AST operation
+    if (ASTop < A_EQ || ASTop > A_GE)
+        err("Bad ASTop in cgcompare_and_set()");
+
+    fprintf(output_file, "\tcmpq\t%s, %s\n", reg_list[r2], reg_list[r1]);
+    fprintf(output_file, "\t%s\tL%d\n", invcmplist[ASTop - A_EQ], label);
+    freeall_registers();
+    return (NOREG);
+}
+
+// Generate a label
+void cglabel(int l)
+{
+    fprintf(output_file, "L%d:\n", l);
+}
+
+// Generate a jump to a label
+void cgjump(int l)
+{
+    fprintf(output_file, "\tjmp\tL%d\n", l);
 }
 
 int cgequal(int r1, int r2) { return (cgcompare(r1, r2, "sete")); }

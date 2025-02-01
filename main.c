@@ -10,26 +10,16 @@ static void init_ucc(void)
 
 char* token_strings[] = { "+", "-", "*", "/", "(integer literal)" };
 
-// static void scan_file(void)
-// {
-//     struct token_t T;
-//     while (scan(&T)) {
-//         printf("Token %s", token_strings[T.token]);
-//         if (T.token == T_INTLIT) {
-//             printf(", value %d", T.int_value);
-//         }
-//         printf("\n");
-//     }
-// }
-
 int main(int argc, char** argv)
 {
+    struct ASTnode_t* tree;
     if (argc < 2) {
         die("no input files");
     }
 
     init_ucc();
     input_file = fopen(argv[1], "r");
+
     if (input_file == NULL) {
         die("Unable to open %s: %s", argv[1], strerror(errno));
     }
@@ -41,8 +31,9 @@ int main(int argc, char** argv)
 
     scan(&recent_token); // Get the first token from the input
     genpreamble(); // Output the preamble
-    statements(); // Parse the statements in the input
-    genpostamble(); // Output the postamble
+    tree = compound_statement(); // Parse the compound statement in the input
+    gen_ast(tree, NOREG, 0); // Generate the assembly code for it
+    genpostamble();
 
     fclose(output_file);
     return 0;

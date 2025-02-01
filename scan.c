@@ -82,13 +82,19 @@ static int keyword(char* s)
 {
     // match with the first char of the string (i.e. the pointer)
     switch (*s) {
+    case 'e':
+        if (!strcmp(s, "else"))
+            return (T_ELSE);
+        break;
+    case 'i':
+        if (!strcmp(s, "if"))
+            return (T_IF);
+        if (!strcmp(s, "int"))
+            return (T_INT);
+        break;
     case 'p':
         if (!strcmp(s, "print"))
             return (T_PRINT);
-        break;
-    case 'i':
-        if (!strcmp(s, "int"))
-            return (T_INT);
         break;
     }
     return (0);
@@ -117,6 +123,18 @@ int scan(struct token_t* t)
         break;
     case ';':
         t->token = T_SEMI;
+        break;
+    case '{':
+        t->token = T_LBRACE;
+        break;
+    case '}':
+        t->token = T_RBRACE;
+        break;
+    case '(':
+        t->token = T_LPAREN;
+        break;
+    case ')':
+        t->token = T_RPAREN;
         break;
     case '=':
         if ((c = next()) == '=') {

@@ -12,6 +12,8 @@ int arithop(int tokentype)
     if (tokentype > T_EOF && tokentype < T_INTLIT)
         return (tokentype);
     die_on_line("Syntax error, token '%d'", tokentype);
+    // just to satisfy clang [-Wreturn-mismatch]
+    return -1;
 }
 
 static struct ASTnode_t* primary(void)
@@ -19,13 +21,12 @@ static struct ASTnode_t* primary(void)
     struct ASTnode_t* n = NULL;
     int id;
 
-    // For an INTLIT token, make a leaf AST node for it
-    // and scan in the next token. Otherwise, a syntax error
-    // for any other token type.
     switch (recent_token.token) {
     case T_INTLIT:
+        // For an INTLIT token, make a leaf AST node for it.
         n = mkastleaf(A_INTLIT, recent_token.int_value);
         break;
+
     case T_IDENT:
         // Check that this identifier exists
         id = findglob(text);
@@ -35,9 +36,12 @@ static struct ASTnode_t* primary(void)
         // Make a leaf AST node for it
         n = mkastleaf(A_IDENT, id);
         break;
+
     default:
-        die_on_line("Syntax error");
+        die_on_line("Syntax error handling token '%d'", recent_token.token);
     }
+
+    // Scan in the next token and return the leaf node
     scan(&recent_token);
     return (n);
 }
@@ -64,7 +68,7 @@ struct ASTnode_t* binexpr(int ptp)
 
     // If we hit a semicolon, return just the left node
     tokentype = recent_token.token;
-    if (tokentype == T_SEMI)
+    if (tokentype == T_SEMI || tokentype == T_RPAREN)
         return (left);
 
     // While the precedence of this token is
@@ -79,12 +83,12 @@ struct ASTnode_t* binexpr(int ptp)
 
         // Join that sub-tree with ours. Convert the token
         // into an AST operation at the same time.
-        left = mkastnode(arithop(tokentype), left, right, 0);
+        left = mkastnode(arithop(tokentype), left, NULL, right, 0);
 
         // Update the details of the current token.
         // If we hit a semicolon, return just the left node
         tokentype = recent_token.token;
-        if (tokentype == T_SEMI)
+        if (tokentype == T_SEMI || tokentype == T_RPAREN)
             return (left);
     }
 

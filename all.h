@@ -21,6 +21,8 @@ struct symtable_t {
     char* name; // Name of a symbol
 };
 
+#define NOREG -1 // Use NOREG when the AST generation
+
 // global variables
 extern_ int line;
 extern_ int putback_c;
@@ -50,9 +52,15 @@ enum {
     T_SEMI,
     T_ASSIGN,
     T_IDENT,
+    T_LBRACE,
+    T_RBRACE,
+    T_LPAREN,
+    T_RPAREN,
     // Keywords
     T_PRINT,
-    T_INT
+    T_INT,
+    T_IF,
+    T_ELSE
 };
 
 // ast node types
@@ -70,12 +78,16 @@ enum {
     A_INTLIT,
     A_IDENT,
     A_LVIDENT,
-    A_ASSIGN
+    A_ASSIGN,
+    A_PRINT,
+    A_GLUE,
+    A_IF
 };
 
 struct ASTnode_t {
     int op; // "Operation" to be performed on this tree
-    struct ASTnode_t* left; // Left and right child trees
+    struct ASTnode_t* left; // Left, mid and right child trees
+    struct ASTnode_t* mid;
     struct ASTnode_t* right;
     union {
         int int_value; // For A_INTLIT, the integer value
@@ -91,7 +103,8 @@ struct ASTnode_t* binexpr(int ptp);
 
 // tree.c
 struct ASTnode_t* mkastnode(int op, struct ASTnode_t* left,
-    struct ASTnode_t* right, int int_value);
+    struct ASTnode_t* mid,
+    struct ASTnode_t* right, int intvalue);
 struct ASTnode_t* mkastleaf(int op, int int_value);
 struct ASTnode_t* mkastunary(int op, struct ASTnode_t* left, int intvalue);
 
@@ -100,7 +113,8 @@ struct ASTnode_t* mkastunary(int op, struct ASTnode_t* left, int intvalue);
 
 // gen.c
 // void generate_code(struct ASTnode_t* n);
-int gen_ast(struct ASTnode_t* n, int reg);
+// int gen_ast(struct ASTnode_t* n, int reg);
+int gen_ast(struct ASTnode_t* n, int reg, int parent_ast_op);
 
 void genpreamble(void);
 void genpostamble(void);
@@ -129,9 +143,14 @@ int cglessthan(int r1, int r2);
 int cggreaterthan(int r1, int r2);
 int cglessequal(int r1, int r2);
 int cggreaterequal(int r1, int r2);
+int cgcompare_and_set(int ASTop, int r1, int r2);
+void cglabel(int l);
+void cgjump(int l);
+int cgcompare_and_jump(int ASTop, int r1, int r2, int label);
 
 // stmt.c
-void statements(void);
+// void statements(void);
+struct ASTnode_t* compound_statement(void);
 
 // sym.c
 int findglob(char* s);
@@ -150,5 +169,9 @@ void err(char* fmt, ...);
 void match(int t, char* what);
 void semi(void);
 void ident(void);
+void rbrace(void);
+void lparen(void);
+void rparen(void);
+void lbrace(void);
 
 #endif
